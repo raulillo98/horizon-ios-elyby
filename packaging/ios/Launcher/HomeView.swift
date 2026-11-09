@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Native launcher shared by iPhone and iPad. The game/session bridge is unchanged.
+/// Native launcher shared by iPhone and iPad.
 struct HomeView: View {
     var onPlay: () -> Void
     @StateObject private var link = GameLink()
@@ -9,6 +9,7 @@ struct HomeView: View {
     @StateObject private var player = PlayerName()
     @StateObject private var head = SkinHead()
     @StateObject private var account = MicrosoftAccount()
+    @StateObject private var elyBy = ElyBySessionController()
     @StateObject private var updates = UpdateChecker()
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var tab = Destination.play
@@ -61,6 +62,7 @@ struct HomeView: View {
         }
         .task(id: shownName) { await head.load(shownName) }
         .task(id: account.profile) { await account.handOver() }
+        .task { await elyBy.restoreAndHandOver() }
         .onChange(of: account.profile) { profile in
             if profile != nil { editingName = false; nameDraft = "" }
         }
@@ -74,8 +76,6 @@ struct HomeView: View {
         }
     }
 
-    /// The iPad layout: a navigation rail beside the pages. NavigationSplitView is iOS 16; on iOS 15 a
-    /// two-column NavigationView gives the same sidebar-beside-detail shape.
     @ViewBuilder private var split: some View {
         if #available(iOS 16.0, *) {
             NavigationSplitView {
@@ -155,7 +155,9 @@ struct HomeView: View {
         }
     }
 
-    private var shownName: String? { account.profile?.name ?? player.name }
+    private var shownName: String? {
+        elyBy.account?.selectedProfile.name ?? account.profile?.name ?? player.name
+    }
 
     private func editName() {
         guard account.profile == nil else { return }
@@ -258,9 +260,9 @@ struct HomeView: View {
                 HStack(spacing: 8) {
                     Avatar(name: shownName, face: head.face, size: 26)
                     Text(shownName ?? "Offline player").font(.subheadline.weight(.medium)).lineLimit(1)
-                    if account.profile != nil {
+                    if elyBy.account != nil || account.profile != nil {
                         Image(systemName: "checkmark.seal.fill").font(.caption)
-                            .accessibilityLabel("Microsoft account")
+                            .accessibilityLabel(elyBy.account != nil ? "Ely.by account" : "Microsoft account")
                     }
                 }.foregroundStyle(.white.opacity(0.9))
                     .accessibilityIdentifier("launcher-playing-as")
@@ -299,6 +301,7 @@ struct HomeView: View {
         if link.importing != nil { return "Preparing files" }
         return needsFiles ? "Game files needed" : "Play"
     }
+
     private var needsFiles: Bool {
         if case .needsFiles = link.phase { return true }
         return link.phase == .waiting && !GameFolder.hasGameFiles
@@ -312,7 +315,7 @@ struct HomeView: View {
                         Avatar(name: shownName, face: head.face, size: 52)
                         VStack(alignment: .leading, spacing: 4) {
                             Text(shownName ?? "Offline player").font(.headline)
-                            Text(account.profile == nil ? "Offline profile" : "Microsoft account")
+                            Text(elyBy.account != nil ? "Ely.by account" : (account.profile == nil ? "Offline profile" : "Microsoft account"))
                                 .font(.subheadline).foregroundStyle(.secondary)
                         }
                     }.padding(.vertical, 8)
@@ -342,6 +345,9 @@ struct HomeView: View {
                     }
                 }
                 Section { AccountCard(account: account) }
+                Section(header: Text("Ely.by")) {
+                    ElyByAccountCard(controller: elyBy)
+                }
             }
             .navigationTitle("Account")
             .navigationBarTitleDisplayMode(.inline)
