@@ -1,0 +1,9 @@
+diff --git a/crates/horizon-client/src/game/launcher.rs b/crates/horizon-client/src/game/launcher.rs
+--- a/crates/horizon-client/src/game/launcher.rs
++++ b/crates/horizon-client/src/game/launcher.rs
+@@
+-/// `launcher-session {"name", "uuid", "access_token", "user_type": "msa", "xuid"}`: the Microsoft account the
+-/// phone's launcher signed in (the session file's fields, docs/microsoft-account.md), kept in memory only;
++/// `launcher-session {"name", "uuid", "access_token", "user_type": "msa"|"elyby", "xuid"?}`:
++/// the account the phone's launcher signed in, kept in memory only;
+ /// `launcher-session off` plays offline again. The token is never echoed back.

@@ -1,0 +1,18 @@
+diff --git a/packaging/ios/Launcher/HomeView.swift b/packaging/ios/Launcher/HomeView.swift
+--- a/packaging/ios/Launcher/HomeView.swift
++++ b/packaging/ios/Launcher/HomeView.swift
+@@
+     @StateObject private var head = SkinHead()
+     @StateObject private var account = MicrosoftAccount()
++    @StateObject private var elyBy = ElyBySessionController()
+@@
+         .task(id: account.profile) { await account.handOver() }
++        .task { await elyBy.restoreAndHandOver() }
+@@
+-                            Text(account.profile == nil ? "Offline profile" : "Microsoft account")
++                            Text(elyBy.account != nil ? "Ely.by account" :
++                                 (account.profile == nil ? "Offline profile" : "Microsoft account"))
+@@
+-                Section { AccountCard(account: account) }
++                Section { AccountCard(account: account) }
++                Section { ElyByAccountCard(controller: elyBy) }
