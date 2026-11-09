@@ -5,6 +5,7 @@ pub mod assets;
 pub mod atlas_sources;
 pub mod audio;
 pub mod auth;
+pub mod elyby_auth;
 pub mod ban_notice;
 pub mod bidi;
 pub mod biome;
