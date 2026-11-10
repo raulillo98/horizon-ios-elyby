@@ -989,7 +989,8 @@ mod tests {
     #[test]
     fn touch_layouts_are_created_from_the_default_and_swapped() {
         let mut s = Settings::default();
-        s.touch.set_placement(crate::touch::Control::Jump, 0.25, 0.6);
+        s.touch
+            .set_placement(crate::touch::Control::Jump, 0.25, 0.6);
         let default = s.touch.clone();
         // A new layout is the default D-pad arrangement, and becomes the active one.
         assert_eq!(s.create_touch_layout("pvp").as_deref(), Some("pvp"));
@@ -1001,7 +1002,8 @@ mod tests {
         );
         assert_eq!(s.touch_profiles.layouts["Default"], default);
         // Editing it, then going back, keeps both layouts.
-        s.touch.set_placement(crate::touch::Control::Forward, 0.1, 0.1);
+        s.touch
+            .set_placement(crate::touch::Control::Forward, 0.1, 0.1);
         assert_eq!(
             s.touch_layout_names(),
             [crate::touch::DEFAULT_PROFILE.to_owned(), "pvp".to_owned()]
@@ -1009,7 +1011,11 @@ mod tests {
         assert!(s.switch_touch_layout(crate::touch::DEFAULT_PROFILE));
         assert_eq!(s.touch, default);
         assert!(s.switch_touch_layout("pvp"));
-        assert!(s.touch.placements.contains_key(&crate::touch::Control::Forward));
+        assert!(
+            s.touch
+                .placements
+                .contains_key(&crate::touch::Control::Forward)
+        );
         // Names must be new, whatever their case, and usable as files.
         assert_eq!(s.create_touch_layout("PVP"), None);
         assert_eq!(s.create_touch_layout("Default"), None);

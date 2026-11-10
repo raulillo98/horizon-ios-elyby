@@ -393,8 +393,7 @@ mod tests {
         assert!(!staged.exists());
 
         // A server mod belongs to a server, not to this game.
-        let server =
-            "id = \"server\"\nname = \"server\"\nversion = \"1.0\"\napi = \"0.3\"\nside = \"server\"\n";
+        let server = "id = \"server\"\nname = \"server\"\nversion = \"1.0\"\napi = \"0.3\"\nside = \"server\"\n";
         let bytes = Package::write_files(server, Some(b"\0"), &[]).unwrap();
         let staged = stage(&dir, "server.hmod", &bytes);
         let error = install(&dir, &staged).unwrap_err();

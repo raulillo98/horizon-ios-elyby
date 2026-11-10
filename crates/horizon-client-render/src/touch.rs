@@ -774,10 +774,7 @@ impl TouchSettings {
                 1.0
             };
             let style = self.style(*control);
-            let (bw, bh) = (
-                r[2] * own * style.width,
-                r[3] * own * style.height,
-            );
+            let (bw, bh) = (r[2] * own * style.width, r[3] * own * style.height);
             let (mut x, mut y) = (r[0] + (r[2] - bw) / 2.0, r[1] + (r[3] - bh) / 2.0);
             if let Some(placement) = self.placements.get(control) {
                 x = placement.x * (w - bw).max(0.0);
@@ -793,11 +790,7 @@ impl TouchSettings {
         // The player's buttons, after the built-in ones: each its own size.
         let base = button_size(h);
         for (id, button) in &self.buttons {
-            let side = |v: f32| {
-                (base * v.clamp(MIN_SIZE, MAX_SIZE))
-                    .round()
-                    .max(1.0)
-            };
+            let side = |v: f32| (base * v.clamp(MIN_SIZE, MAX_SIZE)).round().max(1.0);
             let (bw, bh) = (side(button.width), side(button.height));
             let x = button.placement.x * (w - bw).max(0.0);
             let y = button.placement.y * (h - bh).max(0.0);
@@ -1017,9 +1010,10 @@ impl TouchSettings {
         let mut taken: Vec<Placement> = Vec::new();
         for button in self.buttons.values_mut() {
             let mut placement = button.placement;
-            while taken.iter().any(|p| {
-                (p.x - placement.x).abs() < 1e-4 && (p.y - placement.y).abs() < 1e-4
-            }) {
+            while taken
+                .iter()
+                .any(|p| (p.x - placement.x).abs() < 1e-4 && (p.y - placement.y).abs() < 1e-4)
+            {
                 if placement.x >= 1.0 && placement.y >= 1.0 {
                     break;
                 }
@@ -1272,9 +1266,7 @@ impl Touches {
                 }
             }
             Kind::World {
-                dragged,
-                swiping,
-                ..
+                dragged, swiping, ..
             } => {
                 let (dx, dy) = (at.0 - f.start.0, at.1 - f.start.1);
                 if !*dragged && dx.hypot(dy) > SLOP {
@@ -1389,7 +1381,10 @@ impl Touches {
     pub fn held(&self, control: Control) -> bool {
         self.fingers.iter().any(|f| match f.kind {
             Kind::Button(c) => c == control,
-            Kind::Swipe { control: c, pressed } => pressed && c == control,
+            Kind::Swipe {
+                control: c,
+                pressed,
+            } => pressed && c == control,
             Kind::Stick => control == Control::Stick,
             Kind::World {
                 swiping: Some(c), ..
@@ -1548,7 +1543,8 @@ mod tests {
 
     #[test]
     fn layouts_round_trip_through_their_folder() {
-        let dir = std::env::temp_dir().join(format!("horizon-touch-layouts-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("horizon-touch-layouts-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let mut active = TouchSettings::default();
@@ -1894,7 +1890,10 @@ mod tests {
         // Only styled controls take a style; the hotbar and the stick keep their own pages.
         s.set_style_size(Control::Hotbar(0), 2.0, 2.0);
         s.set_style_size(Control::Stick, 2.0, 2.0);
-        assert_eq!(s.styles, BTreeMap::from([(Control::Jump, s.style(Control::Jump))]));
+        assert_eq!(
+            s.styles,
+            BTreeMap::from([(Control::Jump, s.style(Control::Jump))])
+        );
         // A style back at the default is forgotten.
         s.set_style_size(Control::Jump, 1.0, 1.0);
         s.set_style_opacity(Control::Jump, 1.0);
@@ -1905,7 +1904,11 @@ mod tests {
     fn the_editor_shows_buttons_the_player_turned_off() {
         let mut s = TouchSettings::default();
         s.set_hidden(Control::Chat, true);
-        assert!(!s.layout(600.0, 300.0).iter().any(|(c, _)| *c == Control::Chat));
+        assert!(
+            !s.layout(600.0, 300.0)
+                .iter()
+                .any(|(c, _)| *c == Control::Chat)
+        );
         let editor = s.editor_layout(600.0, 300.0);
         assert!(editor.iter().any(|(c, _)| *c == Control::Chat));
         // The hidden button keeps its default place, so it can be turned back on where it was.
@@ -1951,7 +1954,12 @@ mod tests {
 
     #[test]
     fn only_some_buttons_may_be_hidden_or_styled() {
-        for control in [Control::Forward, Control::Jump, Control::Chat, Control::Inventory] {
+        for control in [
+            Control::Forward,
+            Control::Jump,
+            Control::Chat,
+            Control::Inventory,
+        ] {
             assert!(can_hide(control) && styled(control));
         }
         // Pause is a phone's way back and the hide-HUD button brings the HUD back: neither can be

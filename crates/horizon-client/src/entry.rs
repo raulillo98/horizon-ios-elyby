@@ -423,4 +423,3 @@ fn into_app_sandbox() -> Result<std::path::PathBuf, String> {
     std::env::set_current_dir(&documents).map_err(describe)?;
     Ok(documents)
 }
-

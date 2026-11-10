@@ -85,8 +85,8 @@ mod campfire_douse;
 mod cartography;
 mod cat_spawner;
 mod chat;
-mod chat_input;
 mod chat_filter;
+mod chat_input;
 mod chiseled_bookshelf;
 mod client_ambient;
 mod clipboard;
@@ -377,8 +377,8 @@ mod spear;
 mod spectator;
 mod spill;
 mod splash_water;
-mod splitscreen;
 mod split;
+mod splitscreen;
 mod startup_menu;
 mod station_control;
 mod stations;
@@ -8562,9 +8562,8 @@ impl Game<'_> {
     /// which keys its buttons are holding (`TouchInput::holds_key`).
     fn heal_hold_latches(&mut self) {
         let touch = |key| self.touch.holds_key(key);
-        let shift = self.modifiers.shift_key()
-            || touch(KeyCode::ShiftLeft)
-            || touch(KeyCode::ShiftRight);
+        let shift =
+            self.modifiers.shift_key() || touch(KeyCode::ShiftLeft) || touch(KeyCode::ShiftRight);
         let control = self.modifiers.control_key()
             || touch(KeyCode::ControlLeft)
             || touch(KeyCode::ControlRight);
@@ -18723,12 +18722,7 @@ impl ApplicationHandler for Game<'_> {
         // agent input call the inherent handler on the client that already owns the input.
         if let Some(guest) = &mut self.splitscreen_guest {
             if splitscreen::guest_input(&event) {
-                guest.handle_window_event(
-                    event_loop,
-                    id,
-                    event,
-                    input_trace::InputOrigin::User,
-                );
+                guest.handle_window_event(event_loop, id, event, input_trace::InputOrigin::User);
                 return;
             }
             if splitscreen::shared_event(&event) {

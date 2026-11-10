@@ -1499,7 +1499,6 @@ enum Act {
     PlayMusicTrack(String, String),
     /// The Music page: turn this track off, or back on.
     MusicTrackOn(String, bool),
-
 }
 enum WKind {
     Button {
@@ -2255,9 +2254,7 @@ impl OptionsUi {
                 .pack_screen
                 .as_ref()
                 .is_some_and(|p| p.search_focused()),
-            Page::Graphics | Page::GraphicsAdvanced | Page::GraphicsHdr => {
-                self.graphics.typing()
-            }
+            Page::Graphics | Page::GraphicsAdvanced | Page::GraphicsHdr => self.graphics.typing(),
             Page::Controller | Page::PadBinds => self.controller.typing(),
             Page::TouchOptions(_) => self.touch_name.focused,
             Page::TouchLayouts => self.profile_name.focused,
@@ -3381,18 +3378,21 @@ impl OptionsUi {
                         }),
                         Act::TouchProfileSwitch(layout.clone()),
                     );
-                    let remove =
-                        (!active && !layout.eq_ignore_ascii_case(crate::touch::DEFAULT_PROFILE))
-                            .then(|| {
-                                button(
-                                    0.0,
-                                    0.0,
-                                    150.0,
-                                    Text::literal("Delete"),
-                                    Act::TouchProfileDelete(layout.clone()),
-                                )
-                            });
-                    rows.push(Row::Buttons(if active { inactive(pick) } else { pick }, remove));
+                    let remove = (!active
+                        && !layout.eq_ignore_ascii_case(crate::touch::DEFAULT_PROFILE))
+                    .then(|| {
+                        button(
+                            0.0,
+                            0.0,
+                            150.0,
+                            Text::literal("Delete"),
+                            Act::TouchProfileDelete(layout.clone()),
+                        )
+                    });
+                    rows.push(Row::Buttons(
+                        if active { inactive(pick) } else { pick },
+                        remove,
+                    ));
                 }
                 rows
             }
@@ -3504,7 +3504,9 @@ impl OptionsUi {
             }
             Page::TouchStyle(control) => {
                 if !crate::touch::styled(control) {
-                    return vec![Row::Note("This button has no options of its own.".to_owned())];
+                    return vec![Row::Note(
+                        "This button has no options of its own.".to_owned(),
+                    )];
                 }
                 let style = s.touch.style(control);
                 let slider = |field, caption: &str, value: f32, w: f32| Widget {
@@ -4755,15 +4757,7 @@ impl OptionsUi {
             for (rect, label, _, active) in entries {
                 let hover = active && ui::hovered(cursor, rect[0], rect[1], rect[2], rect[3]);
                 ui::button(
-                    batch,
-                    atlas,
-                    rect[0],
-                    rect[1],
-                    rect[2],
-                    rect[3],
-                    &label,
-                    active,
-                    hover,
+                    batch, atlas, rect[0], rect[1], rect[2], rect[3], &label, active, hover,
                 );
             }
         }
@@ -5162,7 +5156,9 @@ impl OptionsUi {
             }
             return events;
         }
-        if self.page() == Page::TouchLayout && let Some(control) = self.touch_popup {
+        if self.page() == Page::TouchLayout
+            && let Some(control) = self.touch_popup
+        {
             let Some((_, entries)) = self.touch_popup_layout(s, &widgets, size) else {
                 self.touch_popup = None;
                 return events;
@@ -6071,7 +6067,6 @@ impl OptionsUi {
             }
             return events;
         }
-
 
         if key == K::Escape {
             return self.back(s);
@@ -6995,9 +6990,11 @@ mod tests {
         assert!(!s.touch.visible(Control::Chat));
         // It stays in the editor, faint, so its popup can turn it back on.
         let (widgets, _, _, _) = ui.layout(&s, size.0, size.1);
-        assert!(widgets
-            .iter()
-            .any(|w| matches!(w.kind, WKind::TouchControl(Control::Chat))));
+        assert!(
+            widgets
+                .iter()
+                .any(|w| matches!(w.kind, WKind::TouchControl(Control::Chat)))
+        );
         ui.touch_popup = Some(Control::Chat);
         let (_, entries) = ui.touch_popup_layout(&s, &widgets, size).unwrap();
         assert_eq!(entries[1].1.plain(), "Turn On");
@@ -7045,7 +7042,11 @@ mod tests {
         );
         assert!(!widgets.iter().any(|w| matches!(
             w.kind,
-            WKind::TouchName | WKind::Button { act: Act::Push(Page::TouchKey(..)), .. }
+            WKind::TouchName
+                | WKind::Button {
+                    act: Act::Push(Page::TouchKey(..)),
+                    ..
+                }
         )));
     }
 

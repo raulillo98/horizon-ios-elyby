@@ -933,8 +933,13 @@ impl Game<'_> {
                     // `AbstractArrow.onHitBlock` on a hit.
                     let from = t.position;
                     let flight = t.velocity;
-                    let clip =
-                        clip_block_hit(&self.world, self.res.facts(), &self.collision, from, flight);
+                    let clip = clip_block_hit(
+                        &self.world,
+                        self.res.facts(),
+                        &self.collision,
+                        from,
+                        flight,
+                    );
                     // Block effects reach the clip location before onHitBlock backs off.
                     let fire_to = clip.map_or(from.add_vector(flight), |(at, _, _)| at);
                     self.trident_block_effects(&mut t, from, fire_to);

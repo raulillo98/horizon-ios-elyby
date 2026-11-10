@@ -890,4 +890,3 @@ fn available_memory() -> Option<usize> {
 fn available_memory() -> Option<usize> {
     None
 }
-

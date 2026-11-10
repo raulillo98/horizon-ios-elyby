@@ -543,7 +543,7 @@ impl Game<'_> {
                         self.tick()
                     } else {
                         let running = running.unwrap_or_else(|| self.clock.world_runs());
-self.tick_weather_effects();
+                        self.tick_weather_effects();
                         let ticked = self.tick_world(running);
                         self.flush_level_effects();
                         ticked

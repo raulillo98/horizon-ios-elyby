@@ -145,8 +145,7 @@ pub fn chosen_present_mode(
     refresh_hz: Option<i32>,
 ) -> Option<PresentMode> {
     // 260 is the Max Framerate option's "Unlimited".
-    let paced = vsync
-        || (fps_limit < 260 && refresh_hz.is_some_and(|hz| fps_limit <= hz));
+    let paced = vsync || (fps_limit < 260 && refresh_hz.is_some_and(|hz| fps_limit <= hz));
     setting
         .filter(|m| !vsync && supported.contains(m))
         .or_else(|| vsync_present_mode(supported, paced))

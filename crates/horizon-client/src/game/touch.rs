@@ -218,7 +218,11 @@ impl Game<'_> {
     }
 
     /// winit's `WindowEvent::Touch`.
-    pub(super) fn touch_event(&mut self, event_loop: &dyn EventLoopCtl, touch: Touch) -> Result<()> {
+    pub(super) fn touch_event(
+        &mut self,
+        event_loop: &dyn EventLoopCtl,
+        touch: Touch,
+    ) -> Result<()> {
         self.touch.seen = true;
         self.touch.hardware.touch();
         self.last_input = Instant::now();
@@ -266,12 +270,11 @@ impl Game<'_> {
                     .fingers
                     .start(touch.id, at, now, &layout, &self.settings.touch.swipes())
             }
-            TouchPhase::Moved => self.touch.fingers.moved(
-                touch.id,
-                at,
-                &layout,
-                &self.settings.touch.swipes(),
-            ),
+            TouchPhase::Moved => {
+                self.touch
+                    .fingers
+                    .moved(touch.id, at, &layout, &self.settings.touch.swipes())
+            }
             TouchPhase::Ended => self.touch.fingers.end(touch.id),
             TouchPhase::Cancelled => self.touch.fingers.cancel(touch.id),
         };
@@ -368,7 +371,12 @@ impl Game<'_> {
             .is_some_and(|info| info.consumable.is_some())
     }
 
-    fn touch_act(&mut self, event_loop: &dyn EventLoopCtl, out: Vec<Out>, scale: f32) -> Result<()> {
+    fn touch_act(
+        &mut self,
+        event_loop: &dyn EventLoopCtl,
+        out: Vec<Out>,
+        scale: f32,
+    ) -> Result<()> {
         for o in out {
             match o {
                 Out::Press(Control::Hotbar(slot)) => self.selected = usize::from(slot),
@@ -608,7 +616,7 @@ impl Game<'_> {
                 event: KeyEvent::synthetic(key, state),
                 is_synthetic: true,
             },
-        super::input_trace::InputOrigin::User,
+            super::input_trace::InputOrigin::User,
         );
         Ok(())
     }
@@ -758,7 +766,7 @@ impl Game<'_> {
                 device_id: DeviceId::dummy(),
                 position,
             },
-        super::input_trace::InputOrigin::User,
+            super::input_trace::InputOrigin::User,
         );
     }
 
@@ -779,7 +787,7 @@ impl Game<'_> {
                 state,
                 button: MouseButton::Left,
             },
-        super::input_trace::InputOrigin::User,
+            super::input_trace::InputOrigin::User,
         );
     }
 
@@ -795,7 +803,7 @@ impl Game<'_> {
                 delta: MouseScrollDelta::LineDelta(0.0, lines),
                 phase: TouchPhase::Moved,
             },
-        super::input_trace::InputOrigin::User,
+            super::input_trace::InputOrigin::User,
         );
     }
 

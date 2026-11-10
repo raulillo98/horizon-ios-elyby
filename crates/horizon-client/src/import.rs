@@ -92,7 +92,8 @@ pub fn boot_importing() -> bool {
 ///
 /// Called once, before the event loop; [`wait_for_boot_import`] is how the loader hears it is over.
 pub fn boot(home: &Path) {
-    if !cfg!(any(target_os = "ios", target_os = "android")) || BOOT_STARTED.swap(true, Ordering::Relaxed)
+    if !cfg!(any(target_os = "ios", target_os = "android"))
+        || BOOT_STARTED.swap(true, Ordering::Relaxed)
     {
         return;
     }
@@ -140,7 +141,10 @@ pub fn wait_for_boot_import() {
     }
     let mut done = BOOT_DONE.0.lock().unwrap_or_else(PoisonError::into_inner);
     while !*done {
-        done = BOOT_DONE.1.wait(done).unwrap_or_else(PoisonError::into_inner);
+        done = BOOT_DONE
+            .1
+            .wait(done)
+            .unwrap_or_else(PoisonError::into_inner);
     }
 }
 
@@ -416,7 +420,11 @@ impl Pack {
 
     /// Read every entry out into `into`, which is created here. Anything that goes wrong removes
     /// `into` again: the game must never see a half tree.
-    fn unpack(&mut self, into: &Path, progress: &mut dyn FnMut(usize, u64)) -> Result<(usize, u64)> {
+    fn unpack(
+        &mut self,
+        into: &Path,
+        progress: &mut dyn FnMut(usize, u64),
+    ) -> Result<(usize, u64)> {
         fs::create_dir_all(into)?;
         let mut files = 0;
         let mut written = 0u64;

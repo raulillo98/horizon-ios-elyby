@@ -51,7 +51,11 @@ impl std::fmt::Debug for ElyBySession {
 
 impl ElyBySession {
     pub fn new(name: impl Into<String>, uuid: u128, access_token: impl Into<String>) -> Self {
-        Self { name: name.into(), uuid, access_token: access_token.into() }
+        Self {
+            name: name.into(),
+            uuid,
+            access_token: access_token.into(),
+        }
     }
 }
 
@@ -82,7 +86,8 @@ fn encode_query(value: &str) -> String {
 fn map_error(status: u16, body: &str) -> ElyByJoinError {
     let value: serde_json::Value = serde_json::from_str(body).unwrap_or_default();
     let error = value.get("error").and_then(|v| v.as_str()).unwrap_or("");
-    let message = value.get("errorMessage")
+    let message = value
+        .get("errorMessage")
         .and_then(|v| v.as_str())
         .unwrap_or("Ely.by rejected the session request");
     match (status, error) {
@@ -99,7 +104,8 @@ pub fn join_server(session: &ElyBySession, server_hash: &str) -> Result<(), ElyB
         "accessToken": session.access_token,
         "selectedProfile": uuid_string(session.uuid),
         "serverId": server_hash,
-    }).to_string();
+    })
+    .to_string();
 
     match agent()
         .post(&format!("{BASE}/session/join"))
@@ -151,18 +157,26 @@ pub fn parse_has_joined(body: &str) -> Option<ElyByJoinedProfile> {
     let value: serde_json::Value = serde_json::from_str(body).ok()?;
     let uuid_text = value.get("id")?.as_str()?;
     let compact: String = uuid_text.chars().filter(|c| *c != '-').collect();
-    if compact.len() != 32 { return None; }
+    if compact.len() != 32 {
+        return None;
+    }
     let uuid = u128::from_str_radix(&compact, 16).ok()?;
 
-    let properties = value.get("properties")
+    let properties = value
+        .get("properties")
         .and_then(|v| v.as_array())
         .into_iter()
         .flatten()
-        .filter_map(|p| Some(ElyByProperty {
-            name: p.get("name")?.as_str()?.to_owned(),
-            value: p.get("value")?.as_str()?.to_owned(),
-            signature: p.get("signature").and_then(|v| v.as_str()).map(str::to_owned),
-        }))
+        .filter_map(|p| {
+            Some(ElyByProperty {
+                name: p.get("name")?.as_str()?.to_owned(),
+                value: p.get("value")?.as_str()?.to_owned(),
+                signature: p
+                    .get("signature")
+                    .and_then(|v| v.as_str())
+                    .map(str::to_owned),
+            })
+        })
         .collect();
 
     Some(ElyByJoinedProfile { uuid, properties })
