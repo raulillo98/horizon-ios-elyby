@@ -328,8 +328,12 @@ pub fn join_server(session: &AuthSession, server_hash: &str) -> Result<(), JoinE
             ) {
                 Ok(()) => Ok(()),
                 Err(crate::elyby_auth::ElyByJoinError::Unavailable) => Err(JoinError::Unavailable),
-                Err(crate::elyby_auth::ElyByJoinError::InvalidSession) => Err(JoinError::InvalidSession),
-                Err(crate::elyby_auth::ElyByJoinError::Other(message)) => Err(JoinError::Other(message)),
+                Err(crate::elyby_auth::ElyByJoinError::InvalidSession) => {
+                    Err(JoinError::InvalidSession)
+                }
+                Err(crate::elyby_auth::ElyByJoinError::Other(message)) => {
+                    Err(JoinError::Other(message))
+                }
             },
             Duration::from_millis(500),
         );
@@ -639,16 +643,20 @@ pub fn has_joined(
 ) -> Result<Option<JoinedProfile>, JoinError> {
     if current().is_some_and(|session| session.user_type == "elyby") {
         return crate::elyby_auth::has_joined(name, server_hash, ip)
-            .map(|profile| profile.map(|profile| JoinedProfile {
-                uuid: profile.uuid,
-                properties: profile.properties.into_iter().map(|property| {
-                    horizon_protocol::packets::login::Property {
-                        name: property.name,
-                        value: property.value,
-                        signature: property.signature,
-                    }
-                }).collect(),
-            }))
+            .map(|profile| {
+                profile.map(|profile| JoinedProfile {
+                    uuid: profile.uuid,
+                    properties: profile
+                        .properties
+                        .into_iter()
+                        .map(|property| horizon_protocol::packets::login::Property {
+                            name: property.name,
+                            value: property.value,
+                            signature: property.signature,
+                        })
+                        .collect(),
+                })
+            })
             .map_err(|error| match error {
                 crate::elyby_auth::ElyByJoinError::Unavailable => JoinError::Unavailable,
                 crate::elyby_auth::ElyByJoinError::InvalidSession => JoinError::InvalidSession,
