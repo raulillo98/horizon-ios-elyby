@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 
-/// Estado observable de la cuenta Ely.by.
-/// La contraseña no se conserva: ElyByAccount almacena el token en Keychain.
+
+
 @MainActor
 final class ElyBySessionController: ObservableObject {
     @Published private(set) var account: ElyByAccount.Account?
@@ -20,7 +20,7 @@ final class ElyBySessionController: ObservableObject {
 
         let user = username.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !user.isEmpty, !password.isEmpty else {
-            error = "Introduce tu usuario y contraseña de Ely.by."
+            error = "Enter your Ely.by username and password."
             return
         }
 
@@ -66,7 +66,7 @@ final class ElyBySessionController: ObservableObject {
         do {
             let data = try JSONSerialization.data(withJSONObject: session)
             guard let json = String(data: data, encoding: .utf8) else {
-                error = "No se pudo codificar la sesión Ely.by."
+                error = "Could not encode the Ely.by session."
                 return
             }
 
@@ -74,12 +74,12 @@ final class ElyBySessionController: ObservableObject {
             if let message = answer["error"] as? String {
                 error = message
             } else if let ok = answer["ok"] as? Bool, !ok {
-                error = "Horizon no pudo activar la sesión Ely.by."
+                error = "Horizon couldn't activate the Ely.by session."
             } else {
                 error = nil
             }
         } catch {
-            self.error = "No se pudo preparar la sesión Ely.by: \(error.localizedDescription)"
+            self.error = "The Ely.by session could not be prepared: \(error.localizedDescription)"
         }
     }
 
@@ -102,7 +102,7 @@ final class ElyBySessionController: ObservableObject {
     }
 }
 
-/// Tarjeta de acceso Ely.by para incluir en la hoja de cuentas de HomeView.
+
 struct ElyByAccountCard: View {
     @ObservedObject var controller: ElyBySessionController
 
@@ -112,24 +112,24 @@ struct ElyByAccountCard: View {
                 Image(systemName: "person.crop.circle.badge.checkmark")
                 VStack(alignment: .leading, spacing: 2) {
                     Text("ELY.BY").font(.caption.weight(.bold))
-                    Text(controller.account?.selectedProfile.name ?? "No has iniciado sesión")
+                    Text(controller.account?.selectedProfile.name ?? "Not signed in.")
                         .font(.headline)
                 }
                 Spacer()
                 if controller.account != nil {
-                    Button("Cerrar sesión") {
+                    Button("Sing out") {
                         controller.signOut()
                     }
                 }
             }
 
             if controller.account == nil {
-                TextField("Usuario o correo de Ely.by", text: $controller.username)
+                TextField("Ely.by username or email", text: $controller.username)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.emailAddress)
 
-                SecureField("Contraseña", text: $controller.password)
+                SecureField("Password", text: $controller.password)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
@@ -139,7 +139,7 @@ struct ElyByAccountCard: View {
                     if controller.busy {
                         ProgressView()
                     } else {
-                        Text("Iniciar sesión con Ely.by")
+                        Text("Sing in with Ely.by")
                     }
                 }
                 .disabled(controller.busy)
@@ -152,7 +152,7 @@ struct ElyByAccountCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Text("Funciona en servidores configurados para Ely.by/Authlib Injector.")
+            Text("Works on servers configured for Ely.by/Authlib Injector.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
