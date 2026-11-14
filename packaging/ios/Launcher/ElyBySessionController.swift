@@ -124,7 +124,7 @@ struct ElyByAccountCard: View {
             }
 
             if controller.account == nil {
-                TextField("Ely.by username or email", text: $controller.username)
+                TextField("Ely.by username or email"), text: $controller.username)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.emailAddress)
